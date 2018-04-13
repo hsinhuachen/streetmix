@@ -4,13 +4,14 @@ import { SET_LOCALE } from './index'
 // { key1: { key2: "string" }} => { "key1.key2": "string" }
 // This is because react-intl expects to look up translations this way.
 // ES6-ported function from https://gist.github.com/penguinboy/762197
-// This is quite simple; it does not address arrays or null values, since
+// This is quite simple; it does not address null values, since
 // the responses from the server will not be containing those.
 function flattenObject (obj) {
   const toReturn = {}
   let flatObject
   Object.keys(obj).forEach(i => {
-    if (typeof obj[i] === 'object') {
+    // does not flatten arrays
+    if (typeof obj[i] === 'object' && !Array.isArray(obj[i])) {
       flatObject = flattenObject(obj[i])
       Object.keys(flatObject).forEach(x => {
         toReturn[i + '.' + x] = flatObject[x]
@@ -30,7 +31,7 @@ function replacePlaceholders (messages) {
   }, {})
 }
 
-export function setLocale (locale, messages) {
+export function setLocale (locale, messages, segments) {
   // Substitute 'en' for 'en-US' locales
   if (locale === 'en-US') locale = 'en'
 
@@ -38,6 +39,7 @@ export function setLocale (locale, messages) {
     type: SET_LOCALE,
     // Converts "es_MX" to "en-MX" (and similar) for react-intl
     locale: locale.replace('_', '-'),
-    messages: replacePlaceholders(flattenObject(messages))
+    messages: replacePlaceholders(flattenObject(messages)),
+    segments: flattenObject(segments)
   }
 }

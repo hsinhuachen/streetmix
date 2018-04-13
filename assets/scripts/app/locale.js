@@ -90,7 +90,11 @@ function doTheI18n (locale) {
     }
 
     // Set the thing in Redux
-    store.dispatch(setLocale(locale, i18next.getResourceBundle(locale, 'main')))
+    store.dispatch(setLocale(
+      locale,
+      i18next.getResourceBundle(locale, 'main'),
+      i18next.getResourceBundle(locale, 'segment-info').segments
+    ))
 
     // right-to-left languages support
     if (['ar', 'dv', 'fa', 'he'].indexOf(locale) > -1) {
