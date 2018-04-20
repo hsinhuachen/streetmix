@@ -7,6 +7,7 @@ import { drawSegmentContents, getVariantInfoDimensions, segmentsChanged, TILE_SI
 import { prettifyWidth } from '../util/width_units'
 import { SETTINGS_UNITS_METRIC } from '../users/localization'
 import { infoBubble, INFO_BUBBLE_TYPE_SEGMENT } from '../info_bubble/info_bubble'
+import { FormattedMessage, injectIntl } from 'react-intl'
 
 const WIDTH_PALETTE_MULTIPLIER = 4 // Dupe from palette.js
 const SEGMENT_Y_NORMAL = 265
@@ -24,7 +25,8 @@ class Segment extends React.Component {
     width: PropTypes.number,
     forPalette: PropTypes.bool.isRequired,
     dpi: PropTypes.number,
-    units: PropTypes.number
+    units: PropTypes.number,
+    intl: PropTypes.object
   }
 
   static defaultProps = {
@@ -76,6 +78,7 @@ class Segment extends React.Component {
     const segmentInfo = getSegmentInfo(this.props.type)
     const variantInfo = getSegmentVariantInfo(this.props.type, this.props.variantString)
     const name = variantInfo.name || segmentInfo.name
+
     const width = this.calculateWidth(RESIZE_TYPE_INITIAL)
     const widthText = <React.Fragment>{prettifyWidth(width, this.props.units)}<wbr />\'</React.Fragment>
     const segmentWidth = this.props.width // may need to double check this. setSegmentContents() was called with other widths
@@ -107,12 +110,13 @@ class Segment extends React.Component {
         data-variant-string={this.props.variantString}
         data-rand-seed={this.props.randSeed}
         data-width={width}
-        title={this.props.forPalette ? segmentInfo.name : null}>
+        // TODO: also get variant name translation
+        title={this.props.forPalette ? this.props.intl.formatMessage({ id: `segmentInfo.${this.props.type}.name`, defaultMessage: segmentInfo.name }) : null}
+      >
         {!this.props.forPalette &&
           <React.Fragment>
-            <span className="name" data-i18n={'segment-info:segments.' + this.props.type + '.name'}>
-              {name}
-            </span>
+            {/* TODO: also get variant name translation */}
+            <span className="name"><FormattedMessage id={`segmentInfo.${this.props.type}.name`} defaultMessage={name} /></span>
             <span className="width">{widthText}</span>
             <span className="drag-handle left">‹</span>
             <span className="drag-handle right">›</span>
@@ -140,8 +144,9 @@ class Segment extends React.Component {
 
 function mapStateToProps (state) {
   return {
-    dpi: state.system.hiDpi
+    dpi: state.system.hiDpi,
+    locale: state.locale
   }
 }
 
-export default connect(mapStateToProps)(Segment)
+export default injectIntl(connect(mapStateToProps)(Segment))

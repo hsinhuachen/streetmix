@@ -5,8 +5,7 @@ const initialState = {
   // Substitute 'en' for 'en-US' locales
   // TODO: make that unnecessary
   locale: navigator.language.replace('en-US', 'en') || 'en',
-  messages: {},
-  segments: {}
+  messages: {}
 }
 
 const locale = (state = initialState, action) => {
@@ -15,8 +14,7 @@ const locale = (state = initialState, action) => {
       return {
         ...state,
         locale: action.locale,
-        messages: action.messages,
-        segments: action.segments
+        messages: action.messages
       }
     default:
       return state
